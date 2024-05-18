@@ -11,7 +11,7 @@ pub enum Command {
 }
 
 impl Command {
-    pub fn from_str(input: &str) -> Result<Command, Box<dyn Error>> {
+    pub fn from_str(input: &str) -> Result<Self, Box<dyn Error>> {
         match input.to_lowercase().trim() {
             "lowercase" => Ok(Command::Lowercase),
             "l" => Ok(Command::Lowercase),
@@ -39,7 +39,7 @@ impl Debug for CommandError {
 
 impl CommandError {
     pub fn new(msg: &str) -> CommandError {
-        CommandError { details: msg.to_string() }
+        Self { details: msg.to_string() }
     }
 }
 

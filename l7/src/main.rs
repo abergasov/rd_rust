@@ -1,5 +1,6 @@
 use std::{
     io::stdin,
+    process,
     str::FromStr,
     thread,
 };
@@ -38,6 +39,7 @@ fn main() {
     ctrlc::set_handler(move || {
         println!("Shutting down...");
         r.store(false, Ordering::SeqCst);
+        process::exit(0);
     }).expect("Error setting Ctrl-C handler");
 
 
