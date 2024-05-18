@@ -1,11 +1,12 @@
+use std::env;
+use std::io::stdin;
+
 use slug::slugify;
-use std::{io, env};
-use std::io::{stdin,stdout,Write};
 
 fn main() {
-    let mut input=String::new();
+    let mut input = String::new();
     stdin().read_line(&mut input).expect("bad input");
-    println!("You typed: {}",input);
+    println!("You typed: {}", input);
 
     println!("parse cli args");
     let args: Vec<String> = env::args().collect();
@@ -14,7 +15,7 @@ fn main() {
         return;
     }
 
-    if (args.len() -1) %2 != 0 {
+    if (args.len() - 1) % 2 != 0 {
         println!("Invalid number of arguments, each param should have a value");
         return;
     }
@@ -36,5 +37,5 @@ fn processInput(command: String, input: String) -> String {
         "nospaces" => input.replace(" ", ""),
         "slugify" => slugify(input),
         _ => "Invalid command".to_string(),
-    }
+    };
 }
