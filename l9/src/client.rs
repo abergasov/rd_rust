@@ -21,7 +21,7 @@ fn main() {
                 print!("Enter message: ");
                 io::stdout().flush().unwrap();
                 io::stdin().read_line(&mut input).expect("Failed to read from stdin");
-                let trimmed_input = input.trim().to_lowercase();
+                let trimmed_input = input.trim().to_string();
                 if trimmed_input == "quit" || trimmed_input == "q" {
                     println!("Quitting...");
                     break;
@@ -68,10 +68,10 @@ fn main() {
 }
 
 fn get_file_from_input(input: String) -> String {
-    if input.starts_with("file_") {
+    if input.starts_with("file") {
         return input.trim_start_matches("file").trim().to_string();
     }
-    if input.starts_with("image_") {
+    if input.starts_with("image") {
         return input.trim_start_matches("image").trim().to_string();
     }
     // return String::new();
