@@ -1,7 +1,7 @@
 use std::{fs, fs::File, io::Read, io::self, io::Write};
 use std::net::TcpStream;
 
-use crate::pkg::logger::abstract_logger::AppLogger;
+use crate::pkg::logger::abstract_logger::{AppLogger, StringWith};
 
 pub fn handle_client(log: Box<dyn AppLogger + Send + Sync>, mut stream: TcpStream) -> io::Result<()> {
     loop {
@@ -11,7 +11,7 @@ pub fn handle_client(log: Box<dyn AppLogger + Send + Sync>, mut stream: TcpStrea
         match stream.read(&mut temp_buffer) { // Read by mask FILE%FILE_TYPE%FILE_LENGTH%
             Ok(0) => {
                 log.info("connection was closed", &[]);
-                break; // connection was closed
+                break;
             }
             Ok(n) => {
                 buffer.extend_from_slice(&temp_buffer[..n]);
@@ -19,10 +19,12 @@ pub fn handle_client(log: Box<dyn AppLogger + Send + Sync>, mut stream: TcpStrea
                 // FILE first_pos - file_type - second_pos - file_length - third_pos - file_content
                 let first_pos = buffer.iter().position(|&c| c == b'%');
                 if first_pos.is_none() || first_pos == Some(0) {
-                    print!("none file command\n");
-                    println!("Received: {}", String::from_utf8_lossy(&buffer[..n]));
+                    log.info("received none file command", &[
+                        StringWith::new("message", &String::from_utf8_lossy(&buffer[..n])),
+                    ]);
                     if let Err(e) = stream.write_all(&buffer[..n]) {
-                        eprintln!("Failed to send response: {}", e);
+                        log.error("failed to send response", e, &[]);
+                        break;
                     }
                     continue;
                 }
@@ -50,8 +52,8 @@ pub fn handle_client(log: Box<dyn AppLogger + Send + Sync>, mut stream: TcpStrea
                 let payload_size = String::from_utf8_lossy(&buffer[second_pos + 1..third_pos]).to_string();
 
                 let payload_size = payload_size.parse::<usize>();
-                if payload_size.is_err() {
-                    eprintln!("Invalid message format.");
+                if let Err(err) = payload_size {
+                    log.error("failed to parse payload size", io::Error::new(io::ErrorKind::InvalidInput, err), &[]);
                     continue;
                 }
                 let payload_size = payload_size.unwrap();
@@ -65,7 +67,7 @@ pub fn handle_client(log: Box<dyn AppLogger + Send + Sync>, mut stream: TcpStrea
                         Ok(0) => break,
                         Ok(n) => payload_content.extend_from_slice(&chunk[..n]),
                         Err(err) => {
-                            log.error("failed to read from socket: {}", err, &[]);
+                            log.error("failed to read from socket", err, &[]);
                             break;
                         }
                     }
@@ -75,7 +77,7 @@ pub fn handle_client(log: Box<dyn AppLogger + Send + Sync>, mut stream: TcpStrea
                     let file_name = format!("/tmp/{}/received_{}.txt", file_type, file_type);
                     let mut file = File::create(file_name)?;
                     file.write_all(&payload_content)?;
-                    println!("File received successfully.");
+                    log.info("file received successfully.", &[]);
                     process_message(&mut stream, &file_type);
                 } else {
                     log.info("received file length does not match the specified length.", &[]);
