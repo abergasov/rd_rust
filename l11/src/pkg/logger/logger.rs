@@ -27,7 +27,7 @@ impl AppLogger for SimpleLogger {
         // Implementation of the fatal method
     }
 
-    fn with(&self, args: &[StringWith]) -> Box<dyn AppLogger> {
+    fn with(&self, args: &[StringWith]) -> Box<dyn AppLogger + Send + Sync> {
         let mut ctx = self.context.clone();
         ctx.extend_from_slice(args);
         return Box::new(SimpleLogger::new(ctx.as_slice()));
