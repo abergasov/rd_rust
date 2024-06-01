@@ -1,10 +1,11 @@
-use std::{io, io::Read, thread};
-use std::net::{TcpListener, TcpStream};
+use std::{io::Read, thread};
+use std::net::TcpListener;
 
 use pkg::logger::abstract_logger::AppLogger;
 use pkg::logger::logger::SimpleLogger;
 
 use crate::pkg::logger::abstract_logger::StringWith;
+use crate::pkg::service::server::handler::handle_client;
 use crate::pkg::utils::env;
 
 mod pkg;
@@ -31,31 +32,7 @@ fn main() {
                 peer_logger.info("accepted connection", &[]);
                 thread::spawn(|| handle_client(peer_logger, stream));
             }
-            Err(err) => {
-                logger.error("failed to accept connection", err, &[]);
-            }
+            Err(err) => logger.error("failed to accept connection", err, &[]),
         }
     }
-}
-
-fn handle_client(log: Box<dyn AppLogger + Send + Sync>, mut stream: TcpStream) -> io::Result<()> {
-    loop {
-        let mut buffer = Vec::new();
-        let mut temp_buffer = [0; 512];
-        match stream.read(&mut temp_buffer) { // Read by mask FILE%FILE_TYPE%FILE_LENGTH%
-            Ok(0) => {
-                log.info("connection closed", &[]);
-                break;
-            }
-            Err(e) => {
-                log.error("failed to read from socket", e, &[]);
-                break;
-            }
-            Ok(n) => {
-                buffer.extend_from_slice(&temp_buffer[..n]);
-                log.info("received", &[]);
-            }
-        }
-    }
-    Ok(())
 }
