@@ -1,4 +1,5 @@
 use std::io::Error;
+use std::process;
 
 use crate::pkg::logger::abstract_logger::{AppLogger, StringWith};
 
@@ -23,8 +24,9 @@ impl AppLogger for SimpleLogger {
         println!("INFO: {}, {}", message, prepare_params(&self.context, Some(err), args).join(", "));
     }
 
-    fn fatal(&self, message: &str, err: &dyn std::error::Error, args: &[StringWith]) {
-        // Implementation of the fatal method
+    fn fatal(&self, message: &str, err: Error, args: &[StringWith]) {
+        println!("INFO: {}, {}", message, prepare_params(&self.context, Some(err), args).join(", "));
+        process::exit(1);
     }
 
     fn with(&self, args: &[StringWith]) -> Box<dyn AppLogger + Send + Sync> {

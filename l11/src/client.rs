@@ -18,6 +18,6 @@ fn main() {
     logger.info("spawning client", &[]);
     match TcpStream::connect(&address) {
         Ok(stream) => handle_connection(logger, stream),
-        Err(err) => logger.error("could not connect", err, &[]),
+        Err(err) => logger.fatal("could not connect", err, &[]),
     }
 }

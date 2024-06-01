@@ -22,6 +22,6 @@ impl StringWith {
 pub trait AppLogger {
     fn info(&self, message: &str, args: &[StringWith]);
     fn error(&self, message: &str, err: Error, args: &[StringWith]);
-    fn fatal(&self, message: &str, err: &dyn std::error::Error, args: &[StringWith]);
+    fn fatal(&self, message: &str, err: Error, args: &[StringWith]);
     fn with(&self, args: &[StringWith]) -> Box<dyn AppLogger + Send + Sync>;
 }
