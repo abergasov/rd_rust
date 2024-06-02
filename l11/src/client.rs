@@ -2,7 +2,7 @@ use std::io::{Read, Write};
 use std::net::TcpStream;
 
 use pkg::logger::abstract_logger::AppLogger;
-use pkg::logger::logger::SimpleLogger;
+use pkg::logger::simple_logger::SimpleLogger;
 use pkg::utils;
 
 use crate::pkg::logger::abstract_logger::StringWith;

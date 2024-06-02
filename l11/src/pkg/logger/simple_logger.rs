@@ -1,7 +1,7 @@
 use std::io::Error;
 use std::process;
 
-use crate::pkg::logger::abstract_logger::{AppLogger, StringWith};
+use crate::pkg::logger::abstract_logger::{AppLogger, prepare_params, StringWith};
 
 pub struct SimpleLogger {
     context: Vec<StringWith>,
@@ -36,11 +36,3 @@ impl AppLogger for SimpleLogger {
     }
 }
 
-fn prepare_params(ctx: &Vec<StringWith>, err: Option<Error>, args: &[StringWith]) -> Vec<String> {
-    let mut ctx = ctx.clone();
-    ctx.extend_from_slice(args);
-    if !err.is_none() {
-        ctx.push(StringWith::new("error", &err.unwrap().to_string()));
-    }
-    return ctx.iter().map(|x| x.string()).collect();
-}

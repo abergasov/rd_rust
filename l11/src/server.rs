@@ -2,7 +2,7 @@ use std::{io::Read, thread};
 use std::net::TcpListener;
 
 use pkg::logger::abstract_logger::AppLogger;
-use pkg::logger::logger::SimpleLogger;
+use pkg::logger::slog::SLogger;
 
 use crate::pkg::logger::abstract_logger::StringWith;
 use crate::pkg::service::server::handler::handle_client;
@@ -11,7 +11,7 @@ use crate::pkg::utils::env;
 mod pkg;
 
 fn main() {
-    let logger: Box<dyn AppLogger> = Box::new(SimpleLogger::new(&[]));
+    let logger: Box<dyn AppLogger> = Box::new(SLogger::new(&[]));
     let address = env::get_connect_params();
     let logger = logger.with(&[StringWith::new("address", &address)]);
 

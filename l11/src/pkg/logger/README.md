@@ -20,3 +20,5 @@ pub struct SimpleLogger {
 ```
 
 Currents implementation is not best for performance and production usage, but it's good for development and debugging.
+
+KV logger is in `slog` package, use slog under the hood

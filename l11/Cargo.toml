@@ -12,3 +12,5 @@ name = "client"
 path = "src/client.rs"
 
 [dependencies]
+slog = "2.7.0"
+slog-term = "2.9.1"
