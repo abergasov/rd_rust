@@ -73,12 +73,10 @@ pub fn handle_client(log: Box<dyn AppLogger + Send + Sync>, mut stream: TcpStrea
                     }
                 }
                 if payload_content.len() == payload_size {
-                    fs::create_dir_all(format!("/tmp/{}", file_type))?;
-                    let file_name = format!("/tmp/{}/received_{}.txt", file_type, file_type);
-                    let mut file = File::create(file_name)?;
-                    file.write_all(&payload_content)?;
-                    log.info("file received successfully.", &[]);
-                    process_message(&mut stream, &file_type);
+                    match save_file(payload_content, &file_type, &mut stream) {
+                        Ok(_) => log.info("file received successfully.", &[]),
+                        Err(err) => log.error("failed to save file", err, &[]),
+                    }
                 } else {
                     log.info("received file length does not match the specified length.", &[]);
                 }
@@ -92,17 +90,21 @@ pub fn handle_client(log: Box<dyn AppLogger + Send + Sync>, mut stream: TcpStrea
     Ok(())
 }
 
-fn process_message(stream: &mut TcpStream, message: &str) {
-    let response = if message.starts_with("file") {
+fn save_file(payload_content: Vec<u8>, file_type: &String, stream: &mut TcpStream) -> io::Result<()> {
+    fs::create_dir_all(format!("/tmp/{}", file_type))?;
+    let file_name = format!("/tmp/{}/received_{}.txt", file_type, file_type);
+    let mut file = File::create(file_name)?;
+    file.write_all(&payload_content)?;
+
+    let response = if file_type.starts_with("file") {
         "Received file".to_string()
-    } else if message.starts_with("image") {
+    } else if file_type.starts_with("image") {
         "Received image".to_string()
     } else {
-        println!("Received: {}", message);
-        format!("Received: {}", message)
+        println!("Received: {}", file_type);
+        format!("Received: {}", file_type)
     };
+    stream.write_all(response.as_bytes())?;
 
-    if let Err(e) = stream.write_all(response.as_bytes()) {
-        eprintln!("Failed to send response: {}", e);
-    }
+    Ok(())
 }

@@ -19,7 +19,10 @@ pub fn handle_connection(log: Box<dyn AppLogger + Send + Sync>, mut stream: TcpS
             let file_path = get_file_from_input(trimmed_input);
             match send_file(&stream, "file", &file_path) {
                 Ok(_) => println!("File sent successfully."),
-                Err(e) => log.error("failed to send file: {}", e, &[]),
+                Err(e) => {
+                    log.error("failed to send file", e, &[]);
+                    continue;
+                }
             }
         } else if trimmed_input.starts_with("image") {
             let file_path = get_file_from_input(trimmed_input);
